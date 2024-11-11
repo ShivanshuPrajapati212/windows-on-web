@@ -8,3 +8,8 @@
     backdrop-filter: blur(50px); /* Blurred background for the calculator */
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); /* Subtle shadow for depth */
 }
+
+.sm-icon {
+    height: 1rem;
+    width: 1rem;
+}

@@ -22,7 +22,7 @@ const TaskBar = () => {
       <div className="center flex flex-row gap-4">
         <img className="h-7 w-7 cursor-pointer max-md:h-6 max-md:w-6" src={starticon} alt="icon" />
         <input
-          className="rounded-3xl cursor-text h-8 max-md:h-7 bg-blur border-t-[0.25px] border-gray-500 px-5 text-sm text-white placeholder-gray-200 items-center flex"
+          className="rounded-3xl max-sm:hidden cursor-text h-8 w-52 max-md:w-36 max-md:h-7 bg-blur border-t-[0.25px] border-gray-500 px-5 text-sm text-white placeholder-gray-200 items-center flex"
           type="text"
           name="search"
           id="search_id"

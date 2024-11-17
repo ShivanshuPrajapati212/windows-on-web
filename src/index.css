@@ -10,9 +10,9 @@
 }
 
 .start-menu {
-    background-color: rgba(255, 255, 255, 0); /* Transparent white background */
-    backdrop-filter: blur(85px); /* Blurred background for the calculator */
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); 
+    background-color: rgba(32, 32, 32, 0.45); /* Darker, more transparent background */
+    backdrop-filter: blur(70px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 .sm-icon {

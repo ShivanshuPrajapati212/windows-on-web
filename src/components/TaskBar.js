@@ -7,7 +7,7 @@ import msstore from "../images/msstore.png";
 import wifi_icon from "../images/wifi-logo.svg";
 import speaker_icon from "../images/speaker.svg";
 
-const TaskBar = () => {
+const TaskBar = ({ onStartClick }) => {
   let date = new Date();
 
   let hours = date.getHours();
@@ -20,7 +20,12 @@ const TaskBar = () => {
     <div className="bottom-0 w-screen bg-blur flex flex-row items-center justify-between max-md:justify-center h-12 absolute border-t-[0.25px] border-gray-500 gap-4">
       <div className="left ml-36 max-md:hidden"></div>
       <div className="center flex flex-row gap-4">
-        <img className="h-7 w-7 cursor-pointer max-md:h-6 max-md:w-6" src={starticon} alt="icon"/>
+        <img 
+          className="h-7 w-7 cursor-pointer max-md:h-6 max-md:w-6" 
+          src={starticon} 
+          alt="icon"
+          onClick={onStartClick}
+        />
         <input
           className="rounded-3xl max-sm:hidden cursor-text h-8 w-52 max-md:w-36 max-md:h-7 bg-blur border-t-[0.25px] border-gray-500 px-5 text-sm text-white placeholder-gray-200 items-center flex"
           type="text"

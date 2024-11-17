@@ -8,7 +8,7 @@ import shutdown from "../images/shutdown.svg";
 
 const StartMenu = () => {
   return (
-    <div className={`flex w-[35vw] h-[75vh] rounded-lg start-menu flex-column items-center justify-center max-md:justify-center border-gray-500 relative transition-all duration-200 ease-in-out`}>
+    <div className={`flex w-[35vw] h-[75vh] max-md:w-[90vw] max-md:h-[90vh] rounded-lg start-menu flex-column items-center justify-center max-md:justify-center border-gray-500 relative transition-all duration-200 ease-in-out`}>
       <div className="w-full h-full flex flex-col p-4">
         {/* Search Bar */}
         <div className="w-full mb-4">

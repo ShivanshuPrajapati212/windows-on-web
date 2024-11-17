@@ -19,3 +19,28 @@
     height: 1rem;
     width: 1rem;
 }
+
+.start-menu-transition {
+  transition: all 0.2s ease-in-out;
+  transform-origin: bottom;
+}
+
+.start-menu-enter {
+  opacity: 0;
+  transform: scale(0.95);
+}
+
+.start-menu-enter-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.start-menu-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.start-menu-exit-active {
+  opacity: 0;
+  transform: scale(0.95);
+}

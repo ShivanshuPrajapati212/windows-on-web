@@ -7,7 +7,7 @@ import msstore from "../images/msstore.png";
 import wifi_icon from "../images/wifi-logo.svg";
 import speaker_icon from "../images/speaker.svg";
 
-const TaskBar = ({ onStartClick }) => {
+const TaskBar = ({ onStartClick, onAccessibilityClick }) => {
   let date = new Date();
 
   let hours = date.getHours();
@@ -49,7 +49,7 @@ const TaskBar = ({ onStartClick }) => {
         </ul>
       </div>
       <div className="right flex flex-row gap-4 items-center justify-center mr-5 max-md:hidden">
-        <ul className="flex flex-column gap-2">
+        <ul className="flex flex-column gap-2" onClick={onAccessibilityClick}>
           <img className="h-4 w-4 cursor-pointer" src={wifi_icon} alt="wifi" />
           <img className="h-4 w-4 cursor-pointer" src={speaker_icon} alt="speaker" />
         </ul>

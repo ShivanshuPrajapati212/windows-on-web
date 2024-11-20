@@ -3,10 +3,11 @@ import React, { useState, useRef, useEffect } from 'react';
 const GRID_SIZE = 100;
 const MOBILE_GRID_SIZE = 100;
 
-const DesktopIcon = ({ icon, label, position, onPositionChange, index, isPositionOccupied, isSelected, onContextMenu }) => {
+const DesktopIcon = ({ icon, label, position, onPositionChange, index, isPositionOccupied, isSelected, onContextMenu, onClick }) => {
   const [dragPosition, setDragPosition] = useState(position);
   const [isDragging, setIsDragging] = useState(false);
   const [originalPosition, setOriginalPosition] = useState(position);
+  const [lastTap, setLastTap] = useState(0);
   const offsetRef = useRef({ x: 0, y: 0 });
   const iconRef = useRef(null);
   const [isTouching, setIsTouching] = useState(false);
@@ -51,6 +52,18 @@ const DesktopIcon = ({ icon, label, position, onPositionChange, index, isPositio
   // Touch Events
   const handleTouchStart = (e) => {
     e.stopPropagation();
+    const now = Date.now();
+    const DOUBLE_TAP_DELAY = 300; // ms
+    
+    if (now - lastTap < DOUBLE_TAP_DELAY) {
+      // Double tap detected
+      if (onClick) {
+        onClick();
+      }
+      return;
+    }
+    
+    setLastTap(now);
     setIsTouching(true);
     setIsDragging(true);
     
@@ -129,6 +142,14 @@ const DesktopIcon = ({ icon, label, position, onPositionChange, index, isPositio
     });
   };
 
+  const handleDoubleClick = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (onClick) {
+      onClick();
+    }
+  };
+
   return (
     <div
       ref={iconRef}
@@ -152,6 +173,7 @@ const DesktopIcon = ({ icon, label, position, onPositionChange, index, isPositio
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
       onContextMenu={handleContextMenu}
+      onDoubleClick={handleDoubleClick}
     >
       <img 
         src={icon} 

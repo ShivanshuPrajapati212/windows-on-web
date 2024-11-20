@@ -9,6 +9,7 @@ import chrome from './images/chrome.png';
 import vscode from './images/vs_code.png';
 import msstore from './images/msstore.png';
 import ContextMenu from './components/ContextMenu';
+import ChromeWindow from './components/ChromeWindow';
 
 function App() {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -25,6 +26,8 @@ function App() {
   const startPointRef = useRef({ x: 0, y: 0 });
   const desktopRef = useRef(null);
   const [contextMenu, setContextMenu] = useState(null);
+  const [isChromeOpen, setIsChromeOpen] = useState(false);
+  const [isChromeMaximized, setIsChromeMaximized] = useState(false);
 
   const handleMouseDown = (e) => {
     // Only start selection if clicking on the desktop background
@@ -110,9 +113,14 @@ function App() {
     setIconPositions(newPositions);
   };
 
+  const handleChromeClick = () => {
+    console.log('Chrome clicked');
+    setIsChromeOpen(true);
+  };
+
   const desktopIcons = [
     { icon: file_explorer, label: 'File Explorer' },
-    { icon: chrome, label: 'Chrome' },
+    { icon: chrome, label: 'Chrome', onClick: handleChromeClick },
     { icon: vscode, label: 'VS Code' },
     { icon: msstore, label: 'Store' },
   ];
@@ -208,6 +216,7 @@ function App() {
             onPositionChange={handleIconPositionChange}
             isPositionOccupied={isPositionOccupied}
             isSelected={selectedIcons.includes(index)}
+            onClick={icon.onClick}
             onContextMenu={({ x, y, isDesktop }) => {
               setContextMenu({
                 x: x - desktopRef.current.getBoundingClientRect().left,
@@ -239,15 +248,33 @@ function App() {
           />
         )}
       </div>
-      <TaskBar onStartClick={toggleStartMenu} onAccessibilityClick={toggleAccessibilityMenu} />
+      
+      {isChromeOpen && (
+        <ChromeWindow
+          onClose={() => {
+            console.log('Closing Chrome');
+            setIsChromeOpen(false);
+          }}
+          isMaximized={isChromeMaximized}
+          onMaximize={() => setIsChromeMaximized(!isChromeMaximized)}
+          onMinimize={() => setIsChromeOpen(false)}
+        />
+      )}
+      
+      <TaskBar 
+        onStartClick={toggleStartMenu} 
+        onAccessibilityClick={toggleAccessibilityMenu}
+      />
+      
       <div 
-        className={`justify-center bottom-14 absolute items-center flex w-screen start-menu-transition
+        className={`justify-center bottom-14 absolute items-center flex w-screen start-menu-transition z-[60]
           ${isStartMenuOpen 
             ? 'opacity-100 scale-100' 
             : 'opacity-0 scale-95 pointer-events-none'}`}
       >
         <StartMenu />
       </div>
+      
       <div 
         className={`justify-end bottom-14 pr-4 absolute items-center flex w-screen start-menu-transition
           ${isAccessibilityMenuOpen 

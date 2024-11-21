@@ -11,6 +11,7 @@ import msstore from './images/msstore.png';
 import ContextMenu from './components/ContextMenu';
 import ChromeWindow from './components/ChromeWindow';
 import FileExplorerWindow from './components/FileExplorerWindow';
+import VSCodeWindow from './components/VSCodeWindow';
 
 function App() {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -31,6 +32,10 @@ function App() {
   const [isChromeMaximized, setIsChromeMaximized] = useState(false);
   const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
   const [isFileExplorerMaximized, setIsFileExplorerMaximized] = useState(false);
+  const [isVSCodeOpen, setIsVSCodeOpen] = useState(false);
+  const [isVSCodeMaximized, setIsVSCodeMaximized] = useState(false);
+  const [activeWindows, setActiveWindows] = useState([]);
+  const [focusedWindow, setFocusedWindow] = useState(null);
 
   const handleMouseDown = (e) => {
     // Only start selection if clicking on the desktop background
@@ -119,16 +124,26 @@ function App() {
   const handleChromeClick = () => {
     console.log('Chrome clicked');
     setIsChromeOpen(true);
+    setActiveWindows(prev => [...new Set([...prev, 'chrome'])]);
+    setFocusedWindow('chrome');
   };
 
   const handleFileExplorerClick = () => {
     setIsFileExplorerOpen(true);
+    setActiveWindows(prev => [...new Set([...prev, 'explorer'])]);
+    setFocusedWindow('explorer');
+  };
+
+  const handleVSCodeClick = () => {
+    setIsVSCodeOpen(true);
+    setActiveWindows(prev => [...new Set([...prev, 'vscode'])]);
+    setFocusedWindow('vscode');
   };
 
   const desktopIcons = [
     { icon: file_explorer, label: 'File Explorer', onClick: handleFileExplorerClick },
     { icon: chrome, label: 'Chrome', onClick: handleChromeClick },
-    { icon: vscode, label: 'VS Code' },
+    { icon: vscode, label: 'VS Code', onClick: handleVSCodeClick },
     { icon: msstore, label: 'Store' },
   ];
 
@@ -199,6 +214,21 @@ function App() {
     setContextMenu(null);
   };
 
+  const handleChromeClose = () => {
+    setIsChromeOpen(false);
+    setActiveWindows(prev => prev.filter(w => w !== 'chrome'));
+  };
+
+  const handleFileExplorerClose = () => {
+    setIsFileExplorerOpen(false);
+    setActiveWindows(prev => prev.filter(w => w !== 'explorer'));
+  };
+
+  const handleVSCodeClose = () => {
+    setIsVSCodeOpen(false);
+    setActiveWindows(prev => prev.filter(w => w !== 'vscode'));
+  };
+
   return (
     <div className="text-white h-screen bg-center bg-bgi bg-cover relative">
       <div 
@@ -258,10 +288,7 @@ function App() {
       
       {isChromeOpen && (
         <ChromeWindow
-          onClose={() => {
-            console.log('Closing Chrome');
-            setIsChromeOpen(false);
-          }}
+          onClose={handleChromeClose}
           isMaximized={isChromeMaximized}
           onMaximize={() => setIsChromeMaximized(!isChromeMaximized)}
           onMinimize={() => setIsChromeOpen(false)}
@@ -271,6 +298,24 @@ function App() {
       <TaskBar 
         onStartClick={toggleStartMenu} 
         onAccessibilityClick={toggleAccessibilityMenu}
+        activeWindows={activeWindows}
+        focusedWindow={focusedWindow}
+        onWindowClick={(window) => {
+          switch(window) {
+            case 'chrome':
+              setIsChromeOpen(true);
+              setFocusedWindow('chrome');
+              break;
+            case 'explorer':
+              setIsFileExplorerOpen(true);
+              setFocusedWindow('explorer');
+              break;
+            case 'vscode':
+              setIsVSCodeOpen(true);
+              setFocusedWindow('vscode');
+              break;
+          }
+        }}
       />
       
       <div 
@@ -279,7 +324,22 @@ function App() {
             ? 'opacity-100 scale-100' 
             : 'opacity-0 scale-95 pointer-events-none'}`}
       >
-        <StartMenu />
+        <StartMenu 
+          onAppClick={(appId) => {
+            switch(appId) {
+              case 'chrome':
+                handleChromeClick();
+                break;
+              case 'explorer':
+                handleFileExplorerClick();
+                break;
+              case 'vscode':
+                handleVSCodeClick();
+                break;
+            }
+            setIsStartMenuOpen(false);
+          }} 
+        />
       </div>
       
       <div 
@@ -293,10 +353,19 @@ function App() {
       
       {isFileExplorerOpen && (
         <FileExplorerWindow
-          onClose={() => setIsFileExplorerOpen(false)}
+          onClose={handleFileExplorerClose}
           isMaximized={isFileExplorerMaximized}
           onMaximize={() => setIsFileExplorerMaximized(!isFileExplorerMaximized)}
           onMinimize={() => setIsFileExplorerOpen(false)}
+        />
+      )}
+      
+      {isVSCodeOpen && (
+        <VSCodeWindow
+          onClose={handleVSCodeClose}
+          isMaximized={isVSCodeMaximized}
+          onMaximize={() => setIsVSCodeMaximized(!isVSCodeMaximized)}
+          onMinimize={() => setIsVSCodeOpen(false)}
         />
       )}
     </div>

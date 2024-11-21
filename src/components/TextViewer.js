@@ -24,6 +24,52 @@ const TextViewer = ({ onClose, isMaximized, onMaximize, onMinimize, file }) => {
     });
   };
 
+  const handleTouchStart = (e, type) => {
+    if (e.target.closest('.window-controls')) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    const touch = e.touches[0];
+    
+    if (type) {
+      setIsResizing(true);
+      setResizeType(type);
+      setDragOffset({
+        x: touch.clientX,
+        y: touch.clientY,
+        width: size.width,
+        height: size.height,
+        left: position.x,
+        top: position.y
+      });
+    } else {
+      setIsDragging(true);
+      setDragOffset({
+        x: touch.clientX - position.x,
+        y: touch.clientY - position.y
+      });
+    }
+  };
+
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+    const touch = e.touches[0];
+    
+    if (isDragging) {
+      const newX = touch.clientX - dragOffset.x;
+      const newY = touch.clientY - dragOffset.y;
+      
+      setPosition({
+        x: Math.max(0, Math.min(newX, window.innerWidth - size.width)),
+        y: Math.max(0, Math.min(newY, window.innerHeight - size.height))
+      });
+    }
+    
+    if (isResizing) {
+      handleResize(touch.clientX, touch.clientY);
+    }
+  };
+
   const handleMouseMove = (e) => {
     if (isDragging) {
       setPosition({
@@ -51,13 +97,80 @@ const TextViewer = ({ onClose, isMaximized, onMaximize, onMinimize, file }) => {
     const maxHeight = window.innerHeight - 100;
 
     switch (resizeType) {
-      case 'se':
+      case 'se': // southeast
         setSize({
           width: Math.min(maxWidth, Math.max(minWidth, dragOffset.width + (clientX - dragOffset.x))),
           height: Math.min(maxHeight, Math.max(minHeight, dragOffset.height + (clientY - dragOffset.y)))
         });
         break;
-      // Add other resize cases similar to FileExplorerWindow
+      case 'sw': // southwest
+        const newWidthSW = Math.max(minWidth, dragOffset.width - (clientX - dragOffset.x));
+        setSize(prev => ({
+          width: newWidthSW,
+          height: Math.max(minHeight, dragOffset.height + (clientY - dragOffset.y))
+        }));
+        setPosition(prev => ({
+          x: dragOffset.left + dragOffset.width - newWidthSW,
+          y: prev.y
+        }));
+        break;
+      case 'ne': // northeast
+        const newHeightNE = Math.max(minHeight, dragOffset.height - (clientY - dragOffset.y));
+        setSize({
+          width: Math.min(maxWidth, Math.max(minWidth, dragOffset.width + (clientX - dragOffset.x))),
+          height: newHeightNE
+        });
+        setPosition(prev => ({
+          x: prev.x,
+          y: dragOffset.top + dragOffset.height - newHeightNE
+        }));
+        break;
+      case 'nw': // northwest
+        const newWidthNW = Math.max(minWidth, dragOffset.width - (clientX - dragOffset.x));
+        const newHeightNW = Math.max(minHeight, dragOffset.height - (clientY - dragOffset.y));
+        setSize({
+          width: newWidthNW,
+          height: newHeightNW
+        });
+        setPosition({
+          x: dragOffset.left + dragOffset.width - newWidthNW,
+          y: dragOffset.top + dragOffset.height - newHeightNW
+        });
+        break;
+      case 'n': // north
+        const newHeightN = Math.max(minHeight, dragOffset.height - (clientY - dragOffset.y));
+        setSize(prev => ({
+          ...prev,
+          height: newHeightN
+        }));
+        setPosition(prev => ({
+          ...prev,
+          y: dragOffset.top + dragOffset.height - newHeightN
+        }));
+        break;
+      case 's': // south
+        setSize(prev => ({
+          ...prev,
+          height: Math.max(minHeight, dragOffset.height + (clientY - dragOffset.y))
+        }));
+        break;
+      case 'e': // east
+        setSize(prev => ({
+          ...prev,
+          width: Math.min(maxWidth, Math.max(minWidth, dragOffset.width + (clientX - dragOffset.x)))
+        }));
+        break;
+      case 'w': // west
+        const newWidth = Math.max(minWidth, dragOffset.width - (clientX - dragOffset.x));
+        setSize(prev => ({
+          ...prev,
+          width: newWidth
+        }));
+        setPosition(prev => ({
+          ...prev,
+          x: dragOffset.left + dragOffset.width - newWidth
+        }));
+        break;
       default:
         break;
     }
@@ -86,6 +199,9 @@ const TextViewer = ({ onClose, isMaximized, onMaximize, onMinimize, file }) => {
         width: `${size.width}px`,
         height: `${size.height}px`,
       } : {}}
+      onTouchStart={(e) => !e.target.closest('.window-controls') && handleTouchStart(e)}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleMouseUp}
     >
       <div 
         className="h-10 bg-gray-800 flex items-center justify-between select-none cursor-move"
@@ -122,24 +238,132 @@ const TextViewer = ({ onClose, isMaximized, onMaximize, onMinimize, file }) => {
         </pre>
       </div>
 
-      {/* Add resize handles */}
+      {/* Resize handles */}
       {!isMaximized && (
         <>
-          <div 
-            className="absolute bottom-0 right-0 w-4 h-4 cursor-se-resize hover:bg-blue-500/20"
-            onMouseDown={(e) => {
-              e.preventDefault();
-              setIsResizing(true);
-              setResizeType('se');
-              setDragOffset({
-                x: e.clientX,
-                y: e.clientY,
-                width: size.width,
-                height: size.height
-              });
-            }}
-          />
-          {/* Add other resize handles as needed */}
+          {/* Corners */}
+          <div className="absolute top-0 left-0 w-6 h-6 cursor-nw-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('nw');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 'nw')} />
+          <div className="absolute top-0 right-0 w-6 h-6 cursor-ne-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('ne');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 'ne')} />
+          <div className="absolute bottom-0 left-0 w-6 h-6 cursor-sw-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('sw');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 'sw')} />
+          <div className="absolute bottom-0 right-0 w-6 h-6 cursor-se-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('se');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 'se')} />
+          
+          {/* Edges */}
+          <div className="absolute top-0 left-6 right-6 h-2 cursor-n-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('n');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 'n')} />
+          <div className="absolute bottom-0 left-6 right-6 h-2 cursor-s-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('s');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 's')} />
+          <div className="absolute left-0 top-6 bottom-6 w-2 cursor-w-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('w');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 'w')} />
+          <div className="absolute right-0 top-6 bottom-6 w-2 cursor-e-resize hover:bg-blue-500/20"
+               onMouseDown={(e) => {
+                 e.preventDefault();
+                 setIsResizing(true);
+                 setResizeType('e');
+                 setDragOffset({
+                   x: e.clientX,
+                   y: e.clientY,
+                   width: size.width,
+                   height: size.height,
+                   left: position.x,
+                   top: position.y
+                 });
+               }}
+               onTouchStart={(e) => handleTouchStart(e, 'e')} />
         </>
       )}
     </div>

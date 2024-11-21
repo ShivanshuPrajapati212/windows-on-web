@@ -12,6 +12,7 @@ import ContextMenu from './components/ContextMenu';
 import ChromeWindow from './components/ChromeWindow';
 import FileExplorerWindow from './components/FileExplorerWindow';
 import VSCodeWindow from './components/VSCodeWindow';
+import StoreWindow from './components/StoreWindow';
 
 function App() {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -36,6 +37,8 @@ function App() {
   const [isVSCodeMaximized, setIsVSCodeMaximized] = useState(false);
   const [activeWindows, setActiveWindows] = useState([]);
   const [focusedWindow, setFocusedWindow] = useState(null);
+  const [isStoreOpen, setIsStoreOpen] = useState(false);
+  const [isStoreMaximized, setIsStoreMaximized] = useState(false);
 
   const handleMouseDown = (e) => {
     // Only start selection if clicking on the desktop background
@@ -140,11 +143,17 @@ function App() {
     setFocusedWindow('vscode');
   };
 
+  const handleStoreClick = () => {
+    setIsStoreOpen(true);
+    setActiveWindows(prev => [...new Set([...prev, 'store'])]);
+    setFocusedWindow('store');
+  };
+
   const desktopIcons = [
     { icon: file_explorer, label: 'File Explorer', onClick: handleFileExplorerClick },
     { icon: chrome, label: 'Chrome', onClick: handleChromeClick },
     { icon: vscode, label: 'VS Code', onClick: handleVSCodeClick },
-    { icon: msstore, label: 'Store' },
+    { icon: msstore, label: 'Store', onClick: handleStoreClick },
   ];
 
   // Touch selection handlers
@@ -227,6 +236,11 @@ function App() {
   const handleVSCodeClose = () => {
     setIsVSCodeOpen(false);
     setActiveWindows(prev => prev.filter(w => w !== 'vscode'));
+  };
+
+  const handleStoreClose = () => {
+    setIsStoreOpen(false);
+    setActiveWindows(prev => prev.filter(w => w !== 'store'));
   };
 
   return (
@@ -314,6 +328,10 @@ function App() {
               setIsVSCodeOpen(true);
               setFocusedWindow('vscode');
               break;
+            case 'store':
+              setIsStoreOpen(true);
+              setFocusedWindow('store');
+              break;
           }
         }}
       />
@@ -335,6 +353,9 @@ function App() {
                 break;
               case 'vscode':
                 handleVSCodeClick();
+                break;
+              case 'store':
+                handleStoreClick();
                 break;
             }
             setIsStartMenuOpen(false);
@@ -366,6 +387,15 @@ function App() {
           isMaximized={isVSCodeMaximized}
           onMaximize={() => setIsVSCodeMaximized(!isVSCodeMaximized)}
           onMinimize={() => setIsVSCodeOpen(false)}
+        />
+      )}
+      
+      {isStoreOpen && (
+        <StoreWindow
+          onClose={handleStoreClose}
+          isMaximized={isStoreMaximized}
+          onMaximize={() => setIsStoreMaximized(!isStoreMaximized)}
+          onMinimize={() => setIsStoreOpen(false)}
         />
       )}
     </div>

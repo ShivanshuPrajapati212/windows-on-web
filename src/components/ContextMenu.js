@@ -1,6 +1,7 @@
 import React from 'react';
 import { FiRefreshCw, FiCopy, FiTrash2, FiEdit } from 'react-icons/fi';
 import { BsGrid, BsSortDown, BsViewList } from 'react-icons/bs';
+import { FaAngleRight } from "react-icons/fa";
 
 const ContextMenu = ({ x, y, onClose, isDesktop }) => {
   const handleClick = (action) => {
@@ -57,7 +58,7 @@ const ContextMenu = ({ x, y, onClose, isDesktop }) => {
               </span>
               <span>{item.label}</span>
               {item.hasSubmenu && (
-                <span className="ml-auto text-gray-400">&rarr;</span>
+                <span className="ml-auto text-gray-400"><FaAngleRight /></span>
               )}
             </button>
           )

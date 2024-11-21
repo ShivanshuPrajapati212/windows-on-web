@@ -10,6 +10,7 @@ import vscode from './images/vs_code.png';
 import msstore from './images/msstore.png';
 import ContextMenu from './components/ContextMenu';
 import ChromeWindow from './components/ChromeWindow';
+import FileExplorerWindow from './components/FileExplorerWindow';
 
 function App() {
   const [isStartMenuOpen, setIsStartMenuOpen] = useState(false);
@@ -28,6 +29,8 @@ function App() {
   const [contextMenu, setContextMenu] = useState(null);
   const [isChromeOpen, setIsChromeOpen] = useState(false);
   const [isChromeMaximized, setIsChromeMaximized] = useState(false);
+  const [isFileExplorerOpen, setIsFileExplorerOpen] = useState(false);
+  const [isFileExplorerMaximized, setIsFileExplorerMaximized] = useState(false);
 
   const handleMouseDown = (e) => {
     // Only start selection if clicking on the desktop background
@@ -118,8 +121,12 @@ function App() {
     setIsChromeOpen(true);
   };
 
+  const handleFileExplorerClick = () => {
+    setIsFileExplorerOpen(true);
+  };
+
   const desktopIcons = [
-    { icon: file_explorer, label: 'File Explorer' },
+    { icon: file_explorer, label: 'File Explorer', onClick: handleFileExplorerClick },
     { icon: chrome, label: 'Chrome', onClick: handleChromeClick },
     { icon: vscode, label: 'VS Code' },
     { icon: msstore, label: 'Store' },
@@ -283,6 +290,15 @@ function App() {
       >
         <AccessibilityMenu />
       </div>
+      
+      {isFileExplorerOpen && (
+        <FileExplorerWindow
+          onClose={() => setIsFileExplorerOpen(false)}
+          isMaximized={isFileExplorerMaximized}
+          onMaximize={() => setIsFileExplorerMaximized(!isFileExplorerMaximized)}
+          onMinimize={() => setIsFileExplorerOpen(false)}
+        />
+      )}
     </div>
   );
 }
